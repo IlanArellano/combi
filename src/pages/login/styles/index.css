@@ -1,0 +1,55 @@
+.Login {
+  display: flex;
+  justify-content: center;
+  margin-top: 10vh;
+}
+
+.backMain {
+  width: 100vw;
+}
+
+.Error {
+  color: rgba(255, 0, 0, 0.54);
+  margin: 0;
+  font-size: 0.75rem;
+  margin-top: 3px;
+  text-align: left;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
+  line-height: 1.66;
+  letter-spacing: 0.03333em;
+}
+
+.Error2 {
+  color: rgba(255, 0, 0, 0.54);
+  margin: 0;
+  font-size: 0.75rem;
+  margin-top: 3px;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
+  line-height: 1.66;
+  letter-spacing: 0.03333em;
+  text-align: center;
+}
+
+.Login form {
+  background-color: #ffffff;
+  width: 35%;
+  border: 1px solid rgb(0, 0, 0, 0.1);
+  padding: 10px 30px;
+  -webkit-box-shadow: 5px 5px 0px 0px #289fed, 10px 10px 0px 0px #5fb8ff,
+    37px 50px 0px -23px rgba(0, 0, 0, 0);
+  box-shadow: 5px 5px 0px 0px #289fed, 10px 10px 0px 0px #5fb8ff,
+    37px 50px 0px -23px rgba(0, 0, 0, 0);
+}
+
+.Logo {
+  display: flex;
+  justify-content: center;
+}
+
+@media screen and (max-width: 768px) {
+  .Login form {
+    width: 50%;
+  }
+}
