@@ -31,7 +31,7 @@ export default function Login() {
   const classes = useStyles();
   document.title = "Iniciar Sesion";
 
-  const { login, getUser } = useUser();
+  const { login } = useUser();
 
   const handleCheck = (e) => {
     setCheck(e.target.checked);
@@ -85,7 +85,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await login({ email: username, password });
+    const res = await login({ email: username, password, keep: check });
     if (res.error) {
       setError((prevErr) => {
         return {
@@ -104,11 +104,7 @@ export default function Login() {
         });
       }, 4000);
     } else {
-      alert(
-        `Usted ha iniciado sesión exitosamente con el usuario: ${
-          getUser().user
-        }`
-      );
+      window.location.href = "/home";
     }
   };
 
@@ -154,7 +150,12 @@ export default function Login() {
             }
             label="Mantener sesión iniciada"
           />
-          <Button variant="outlined" color="primary" type="submit">
+          <Button
+            variant="outlined"
+            color="primary"
+            type="submit"
+            disabled={!Boolean(username && password)}
+          >
             Iniciar Sesión
           </Button>
         </form>

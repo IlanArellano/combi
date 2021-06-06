@@ -1,9 +1,12 @@
 import { useContext, useCallback } from "react";
 import { LoginService } from "../services/loginService";
 import Context from "../context";
+import moment from "moment";
 
 export default function useUser() {
-  const { user, setUser } = useContext(Context);
+  const { user, setUser, setFecha } = useContext(Context);
+
+  const getUserToken = () => user;
 
   const getUser = () => {
     const userDecoded = window.atob(user);
@@ -13,7 +16,7 @@ export default function useUser() {
     };
   };
 
-  const login = async ({ email, password }) => {
+  const login = async ({ email, password, keep = false }) => {
     const keys = { email, password };
     try {
       const res = await LoginService(keys);
@@ -21,6 +24,16 @@ export default function useUser() {
         const userEncode = window.btoa(`${email}:${password}`);
         window.localStorage.setItem("user", userEncode);
         setUser(userEncode);
+        if (!keep) {
+          window.localStorage.setItem(
+            "fecha",
+            moment().format("MMMM Do YYYY, h:mm:ss a")
+          );
+          setFecha(window.localStorage.getItem("fecha"));
+        } else {
+          window.localStorage.removeItem("fecha");
+          setFecha(null);
+        }
         return {
           success: true,
         };
@@ -41,12 +54,15 @@ export default function useUser() {
   const logout = useCallback(() => {
     window.localStorage.removeItem("user");
     setUser(null);
-  }, [setUser]);
+    window.localStorage.removeItem("fecha");
+    setFecha(null);
+  }, [setUser, setFecha]);
 
   return {
     isLoggedIn: Boolean(user),
     login,
     logout,
     getUser,
+    getUserToken,
   };
 }

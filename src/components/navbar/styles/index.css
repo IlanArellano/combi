@@ -1,0 +1,20 @@
+.Nav {
+  background: rgb(99, 75, 75);
+  padding: 10px;
+}
+
+.Items {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.Item1 {
+  display: flex;
+  align-items: center;
+}
+
+.Item1 div h3 {
+  color: white;
+  margin-right: 30px;
+}

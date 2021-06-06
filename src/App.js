@@ -1,26 +1,23 @@
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-  Redirect,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Routesconf from "./pages/Routesconf";
 import { UserContext } from "./context";
+import UserLogged from "./components/logged";
 
-const { Login } = Routesconf;
+const { Login, Home } = Routesconf;
 
 function App() {
   return (
     <div>
-      <Router>
-        <Switch>
-          <UserContext>
-            {/*<Route exact path="/" component={() => <div>Hola</div>} />*/}
+      <UserContext>
+        <Router>
+          <Switch>
             <Route exact path="/login" component={Login} />
-            <Redirect to="/login" />
-          </UserContext>
-        </Switch>
-      </Router>
+            <UserLogged>
+              <Route exact path="/home" component={Home} />
+            </UserLogged>
+          </Switch>
+        </Router>
+      </UserContext>
     </div>
   );
 }
