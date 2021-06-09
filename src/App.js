@@ -3,7 +3,7 @@ import Routesconf from "./pages/Routesconf";
 import { UserContext } from "./context";
 import UserLogged from "./components/logged";
 
-const { Login, Home } = Routesconf;
+const { Login, Home, Configuration, DeviceConfiguration } = Routesconf;
 
 function App() {
   return (
@@ -14,6 +14,12 @@ function App() {
             <Route exact path="/login" component={Login} />
             <UserLogged>
               <Route exact path="/home" component={Home} />
+              <Route exact path="/configuracion" component={Configuration} />
+              <Route
+                exact
+                path="/configuracion/dispositivos"
+                component={DeviceConfiguration}
+              />
             </UserLogged>
           </Switch>
         </Router>

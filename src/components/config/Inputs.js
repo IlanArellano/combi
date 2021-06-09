@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
@@ -31,13 +30,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Inputs() {
+export default function Inputs({ geofences }) {
   const classes = useStyles();
-  const [config, setConfig] = useState([]);
-
-  const handleDevice = (e, d) => {
-    setConfig((prevConf) => prevConf.splice(prevConf.length - 1, 1, {}));
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -47,6 +41,7 @@ export default function Inputs() {
   return (
     <Card variant="outlined" className={classes.root}>
       <CardContent>
+        <h3>Punto 1 (Inicio)</h3>
         <form onSubmit={(e) => handleSubmit(e)}>
           <div className="Config">
             <FormControl className={classes.formControl}>
@@ -59,10 +54,16 @@ export default function Inputs() {
                 }}
               >
                 <option aria-label="None" value="" />
-                <option value={10}>Todos los dispositivos</option>
-                <option value={10}>Ten</option>
-                <option value={20}>Twenty</option>
-                <option value={30}>Thirty</option>
+                {geofences &&
+                  !geofences.error &&
+                  geofences.length > 0 &&
+                  geofences.map((geofence) => {
+                    return (
+                      <option key={geofence.id} value={10}>
+                        {geofence.name}
+                      </option>
+                    );
+                  })}
               </Select>
             </FormControl>
             <span>a</span>
@@ -77,10 +78,15 @@ export default function Inputs() {
                 }}
               >
                 <option aria-label="None" value="" />
-                <option value={10}>Todos los dispositivos</option>
-                <option value={10}>Ten</option>
-                <option value={20}>Twenty</option>
-                <option value={30}>Thirty</option>
+                {geofences &&
+                  geofences.length > 0 &&
+                  geofences.map((geofence) => {
+                    return (
+                      <option key={geofence.id} value={10}>
+                        {geofence.name}
+                      </option>
+                    );
+                  })}
               </Select>
             </FormControl>
             <span>Tiempo</span>

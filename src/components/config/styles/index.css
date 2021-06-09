@@ -11,6 +11,10 @@
   justify-content: center;
 }
 
+.Add div {
+  margin: 0 5px;
+}
+
 .Inputs {
   display: flex;
   flex-direction: column;

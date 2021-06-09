@@ -10,7 +10,6 @@ import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import Select from "@material-ui/core/Select";
 import moment from "moment";
-import Configuration from "../../components/config/config";
 import "./styles/index.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -103,7 +102,6 @@ export default function Home() {
                 </div>
               </div>
             </form>
-            <Configuration />
           </div>
         </CardContent>
         <CardActions>

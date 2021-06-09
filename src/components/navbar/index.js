@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
-import LogoutIcon from "@material-ui/icons/AcUnit";
 import ListIcon from "@material-ui/icons/FormatListBulleted";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
@@ -9,9 +8,14 @@ import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
 import Tooltip from "@material-ui/core/Tooltip";
+import { Link } from "react-router-dom";
 import useUser from "../../hooks/useUser";
+
+import HomeIcon from "@material-ui/icons/Home";
+import SettingsIcon from "@material-ui/icons/Settings";
+import CarIcon from "@material-ui/icons/DirectionsCar";
+import LogoutIcon from "@material-ui/icons/ArrowForward";
 
 import "./styles/index.css";
 
@@ -26,7 +30,10 @@ const LightTooltip = withStyles((theme) => ({
 
 const useStyles = makeStyles({
   list: {
-    width: 250,
+    width: 300,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
   },
   icon: {
     color: "#ffffff",
@@ -36,6 +43,7 @@ const useStyles = makeStyles({
     color: "red",
     fontSize: 27,
     fontWeight: "bold",
+    cursor: "pointer",
   },
 });
 
@@ -61,15 +69,43 @@ export default function Navbar() {
   const ListDraw = () => {
     return (
       <div onClick={toggle} className={classes.list}>
-        <List>
-          <ListItem button>
-            <ListItemIcon>
-              <InboxIcon />
-            </ListItemIcon>
-            <ListItemText primary="Holaaa" />
-          </ListItem>
-        </List>
-        <Divider />
+        <div>
+          <List>
+            <ListItem component={Link} to="/home">
+              <ListItemIcon>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Inicio" />
+            </ListItem>
+          </List>
+          <Divider />
+          <List>
+            <ListItem component={Link} to="/configuracion">
+              <ListItemIcon>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText primary="Configuración de Rutas" />
+            </ListItem>
+          </List>
+          <List>
+            <ListItem component={Link} to="/configuracion/dispositivos">
+              <ListItemIcon>
+                <CarIcon />
+              </ListItemIcon>
+              <ListItemText primary="Configuración de los vehiculos" />
+            </ListItem>
+          </List>
+        </div>
+        <div>
+          <List>
+            <ListItem onClick={handleLogout} className={classes.logout}>
+              <ListItemIcon>
+                <LogoutIcon color="secondary" />
+              </ListItemIcon>
+              <ListItemText primary="Salir" />
+            </ListItem>
+          </List>
+        </div>
       </div>
     );
   };

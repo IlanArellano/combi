@@ -1,0 +1,24 @@
+.GeneralMain {
+  margin: 30px;
+}
+
+.GeneralControl {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  align-content: center;
+}
+
+.DeviceControl {
+  display: flex;
+  align-items: center;
+  align-content: center;
+}
+
+.DeviceControl div {
+  margin: 0 10px;
+}
+
+.DeviceButtons button {
+  margin: 0 5px;
+}
