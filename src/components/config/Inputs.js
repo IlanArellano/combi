@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import InputLabel from "@material-ui/core/InputLabel";
@@ -11,7 +11,13 @@ import CardContent from "@material-ui/core/CardContent";
 import Tooltip from "@material-ui/core/Tooltip";
 
 import AddIcon from "@material-ui/icons/CheckOutlined";
-import DeleteIcon from "@material-ui/icons/Delete";
+import EditIcon from "@material-ui/icons/Create";
+import SaveUpdateIcon from "@material-ui/icons/Brush";
+
+import {
+  addRecorridos,
+  updateRecorridos,
+} from "../../services/recorridoService";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,28 +36,72 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Inputs({ geofences }) {
+export default function Inputs({ geofences, recorrido = {} }) {
+  const [options, setOptions] = useState(recorrido);
+  const [item, setItem] = useState(false);
+  const [editar, setEditar] = useState(false);
   const classes = useStyles();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(e.target[0].value);
+  const handleAceptar = async (e) => {
+    delete options.id;
+    const add = await addRecorridos(options);
+    console.log(add);
+    setItem(false);
   };
+
+  const handleEditar = () => {
+    setEditar(true);
+    setItem(true);
+  };
+
+  const handleSaveUpdate = async () => {
+    delete options.nombre;
+    const update = await updateRecorridos(options);
+    console.log(update);
+    setEditar(false);
+    setItem(false);
+  };
+
+  useEffect(() => {
+    if (!options.id_geocerca_1 && !options.id_geocerca_2 && !options.minutos) {
+      setItem(true);
+    } else {
+      setItem(false);
+    }
+  }, [setItem]);
 
   return (
     <Card variant="outlined" className={classes.root}>
       <CardContent>
-        <h3>Punto 1 (Inicio)</h3>
-        <form onSubmit={(e) => handleSubmit(e)}>
+        <h3>{`Punto ${
+          options.posicion === 1
+            ? `${options.posicion} (Inicio)`
+            : `${options.posicion}`
+        }`}</h3>
+        <form>
           <div className="Config">
-            <FormControl className={classes.formControl}>
-              <InputLabel htmlFor={`geocerca1`}>Geocerca</InputLabel>
+            <FormControl
+              className={classes.formControl}
+              disabled={!Boolean(item)}
+            >
+              <InputLabel htmlFor={`geocerca${options.id}`}>
+                Geocerca
+              </InputLabel>
               <Select
                 native
                 inputProps={{
-                  name: `geocerca1`,
-                  id: `geocerca1`,
+                  name: `geocerca${options.id}`,
+                  id: `geocerca${options.id}`,
                 }}
+                value={options.id_geocerca_1.toString() || ""}
+                onChange={(e) =>
+                  setOptions((prevO) => {
+                    return {
+                      ...prevO,
+                      id_geocerca_1: e.target.value,
+                    };
+                  })
+                }
               >
                 <option aria-label="None" value="" />
                 {geofences &&
@@ -59,7 +109,7 @@ export default function Inputs({ geofences }) {
                   geofences.length > 0 &&
                   geofences.map((geofence) => {
                     return (
-                      <option key={geofence.id} value={10}>
+                      <option key={geofence.id} value={geofence.id}>
                         {geofence.name}
                       </option>
                     );
@@ -67,22 +117,35 @@ export default function Inputs({ geofences }) {
               </Select>
             </FormControl>
             <span>a</span>
-            <FormControl className={classes.formControl}>
-              <InputLabel htmlFor={`geocerca2`}>Geocerca</InputLabel>
+            <FormControl
+              className={classes.formControl}
+              disabled={!Boolean(item)}
+            >
+              <InputLabel htmlFor={`geocerca${options.id}-2`}>
+                Geocerca
+              </InputLabel>
               <Select
                 native
-                defaultValue=""
                 inputProps={{
-                  name: `geocerca2`,
-                  id: `geocerca2`,
+                  name: `geocerca${options.id}-2`,
+                  id: `geocerca${options.id}-2`,
                 }}
+                value={options.id_geocerca_2.toString() || ""}
+                onChange={(e) =>
+                  setOptions((prevO) => {
+                    return {
+                      ...prevO,
+                      id_geocerca_2: e.target.value,
+                    };
+                  })
+                }
               >
                 <option aria-label="None" value="" />
                 {geofences &&
                   geofences.length > 0 &&
                   geofences.map((geofence) => {
                     return (
-                      <option key={geofence.id} value={10}>
+                      <option key={geofence.id} value={geofence.id}>
                         {geofence.name}
                       </option>
                     );
@@ -90,7 +153,21 @@ export default function Inputs({ geofences }) {
               </Select>
             </FormControl>
             <span>Tiempo</span>
-            <TextField type="number" placeholder="Tiempo" />
+            <TextField
+              type="number"
+              min={0}
+              placeholder="Tiempo"
+              value={options.minutos || ""}
+              onChange={(e) =>
+                setOptions((prevO) => {
+                  return {
+                    ...prevO,
+                    minutos: e.target.value,
+                  };
+                })
+              }
+              disabled={!Boolean(item)}
+            />
             <span>Minutos</span>
           </div>
         </form>
@@ -98,19 +175,57 @@ export default function Inputs({ geofences }) {
       <CardActions>
         <div className="InputActions">
           <div>
-            <Tooltip title="Guardar" arrow>
-              <IconButton variant="outlined" color="primary">
-                <AddIcon className={classes.IconInput} />
+            <Tooltip title="Editar" arrow>
+              <IconButton
+                variant="outlined"
+                color="primary"
+                disabled={Boolean(item)}
+                onClick={handleEditar}
+              >
+                <EditIcon className={classes.IconInput} />
               </IconButton>
             </Tooltip>
           </div>
-          <div>
-            <Tooltip title="Eliminar" arrow>
-              <IconButton variant="outlined" color="secondary">
-                <DeleteIcon className={classes.IconInput} />
-              </IconButton>
-            </Tooltip>
-          </div>
+          {editar ? (
+            <div>
+              <Tooltip title="Guardar Modificación" arrow>
+                <IconButton
+                  variant="outlined"
+                  color="primary"
+                  disabled={
+                    !Boolean(
+                      options.id_geocerca_1 &&
+                        options.id_geocerca_2 &&
+                        options.minutos
+                    )
+                  }
+                  onClick={handleSaveUpdate}
+                >
+                  <SaveUpdateIcon className={classes.IconInput} />
+                </IconButton>
+              </Tooltip>
+            </div>
+          ) : (
+            <div>
+              <Tooltip title="Guardar" arrow>
+                <IconButton
+                  variant="outlined"
+                  color="primary"
+                  disabled={
+                    !Boolean(
+                      options.id_geocerca_1 &&
+                        options.id_geocerca_2 &&
+                        options.minutos &&
+                        item
+                    )
+                  }
+                  onClick={handleAceptar}
+                >
+                  <AddIcon className={classes.IconInput} />
+                </IconButton>
+              </Tooltip>
+            </div>
+          )}
         </div>
       </CardActions>
     </Card>

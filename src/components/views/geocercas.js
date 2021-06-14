@@ -6,18 +6,19 @@ import NoRows from "./components/NoRows";
 export default function RouteTable({ rows, loading }) {
   const columns = [
     { field: "dispositivo", headerName: "Dispositivo", width: 200 },
-    { field: "geocerca", headerName: "Geocerca", width: 200 },
+    { field: "lugarO", headerName: "Lugar de origen", width: 200 },
     {
-      field: "fechaE",
-      headerName: "Fecha de entrada a la geocerca",
-      width: 150,
+      field: "lugarDestino",
+      headerName: "Lugar de destino",
+      width: 200,
     },
     {
-      field: "fechaS",
-      headerName: "Fecha de Salida a la geocerca",
-      width: 150,
+      field: "fechaI",
+      headerName: "Fecha de Inicio",
+      width: 200,
     },
-    { field: "diferencia", headerName: "Diferencia", width: 150 },
+    { field: "recorrido", headerName: "Recorrido", width: 250 },
+    { field: "diferencia", headerName: "Dicefencia", width: 200 },
   ];
 
   const tableRows = rows.map((row) => {

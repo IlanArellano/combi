@@ -84,7 +84,7 @@ export default function Navbar() {
               <ListItemIcon>
                 <SettingsIcon />
               </ListItemIcon>
-              <ListItemText primary="Configuración de Rutas" />
+              <ListItemText primary="Configuración de Recorridos" />
             </ListItem>
           </List>
           <List>

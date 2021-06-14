@@ -5,9 +5,15 @@ import InputLabel from "@material-ui/core/InputLabel";
 import TextField from "@material-ui/core/TextField";
 import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
+import LinearProgress from "@material-ui/core/LinearProgress";
 import moment from "moment";
 import DispositivoTable from "../../components/views/dispositivosConfig";
-import getDevices from "../../services/deviceService";
+import getDevicesTraccar from "../../services/deviceService";
+
+import { getRecorridos } from "../../services/recorridoService";
+import { getGeofences } from "../../services/listOfGeofences";
+import { getDevices, addDevices } from "../../services/deviceAPIservice";
+
 import "./styles/index.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -18,13 +24,53 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Dispositivos() {
+  const [load, setLoad] = useState(false);
+  const [recorrido, setRecorrido] = useState([]);
+  const [geofences, setGeofences] = useState([]);
+  const [nombresR, setNombresR] = useState([]);
+  const [campos, setCampos] = useState({
+    id_device: "",
+    id_recorrido: "",
+    hora: moment(),
+  });
+  const [destino, setDestino] = useState("");
   const [devices, setDevices] = useState([]);
-  const [fecha, setFecha] = useState(moment());
+  const [devicesTabla, setDevicesTabla] = useState([]);
   const classes = useStyles();
+
+  const handleChangeRecorrido = (e) => {
+    const Item = recorrido
+      .filter((rec) => rec.nombre === e.target.value)
+      .sort((a, b) => a.posicion - b.posicion);
+    const displayNombre = geofences.find(
+      (device) => device.id === Item[Item.length - 1].id_geocerca_2
+    );
+    if (typeof displayNombre !== "object") {
+      throw new Error("No se encontro");
+    }
+    setDestino(displayNombre.name);
+    setCampos((campo) => {
+      return {
+        ...campo,
+        id_recorrido: e.target.value,
+      };
+    });
+  };
+
+  const handleAceptar = async () => {
+    console.log({ ...campos, hora: campos.hora.format("LTS").split(" ")[0] });
+    const addD = await addDevices({
+      ...campos,
+      hora: campos.hora.format("LTS").split(" ")[0],
+      id_recorrido: recorrido.filter((r) => r.nombre === campos.id_recorrido)[0]
+        .id_recorrido,
+    });
+    console.log(addD);
+  };
 
   useEffect(() => {
     (async function () {
-      let Devices = await getDevices();
+      let Devices = await getDevicesTraccar();
       if (Array.isArray(Devices)) {
         setDevices(
           Devices.sort((a, b) => {
@@ -32,8 +78,21 @@ export default function Dispositivos() {
           })
         );
       }
+      const Geofences = await getGeofences();
+      if (Array.isArray(Geofences)) {
+        setGeofences(Geofences);
+      }
+      const Recorridos = await getRecorridos();
+      setRecorrido(Recorridos.response);
+      setNombresR(Recorridos.nombres);
+      const DevicesAPI = await getDevices();
+      if (Array.isArray(DevicesAPI)) {
+        setDevicesTabla(DevicesAPI);
+      }
+      setLoad(true);
     })();
-  }, []);
+  }, [setLoad]);
+
   return (
     <div>
       <h3>Configuración de los dispositivos</h3>
@@ -47,6 +106,15 @@ export default function Dispositivos() {
               name: "dispositivo",
               id: "dispositivo",
             }}
+            value={campos.id_device}
+            onChange={(e) =>
+              setCampos((campo) => {
+                return {
+                  ...campo,
+                  id_device: e.target.value,
+                };
+              })
+            }
           >
             <option aria-label="None" value="" />
             {devices &&
@@ -70,31 +138,60 @@ export default function Dispositivos() {
               name: "recorrido",
               id: "recorrido",
             }}
+            value={campos.id_recorrido}
+            onChange={handleChangeRecorrido}
           >
             <option aria-label="None" value="" />
-            <option value={10}>Hola</option>
-            <option value={10}>Hola</option>
-            <option value={10}>Hola</option>
+            {nombresR &&
+              nombresR.length > 0 &&
+              nombresR.map((nombre, i) => {
+                return (
+                  <option key={i} value={nombre}>
+                    {nombre}
+                  </option>
+                );
+              })}
           </Select>
         </FormControl>
-        <TextField type="text" placeholder="Destino" disabled />
+        <TextField
+          type="text"
+          placeholder="Destino"
+          disabled
+          value={destino || ""}
+        />
         <TextField
           margin="normal"
           variant="filled"
           label="Fecha y hora de ingreso"
-          type="datetime-local"
-          value={fecha.format(moment.HTML5_FMT.DATETIME_LOCAL)}
+          type="time"
+          value={campos.hora.format(moment.HTML5_FMT.TIME)}
           onChange={(e) =>
-            setFecha(moment(e.target.value, moment.HTML5_FMT.DATETIME_LOCAL))
+            setCampos((campo) => {
+              return {
+                ...campo,
+                hora: moment(e.target.value, moment.HTML5_FMT.TIME),
+              };
+            })
           }
         />
         <div>
-          <Button variant="outlined">Aceptar</Button>
-          <Button variant="outlined">Cancelar</Button>
+          <Button variant="outlined" onClick={handleAceptar}>
+            Aceptar
+          </Button>
+          <Button variant="outlined">Limpiar</Button>
         </div>
       </div>
       <div>
-        <DispositivoTable />
+        {!load ? (
+          <LinearProgress />
+        ) : (
+          <DispositivoTable
+            rows={devicesTabla}
+            devices={devices}
+            recorrido={recorrido}
+            geofences={geofences}
+          />
+        )}
       </div>
     </div>
   );

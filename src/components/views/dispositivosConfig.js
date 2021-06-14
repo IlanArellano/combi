@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import Table from "@material-ui/core/Table";
@@ -25,23 +25,62 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function createData(name, calories, fat) {
-  return { name, calories, fat };
-}
-
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
-
-export default function DispositivosTable() {
+export default function DispositivosTable({
+  rows,
+  devices,
+  recorrido,
+  geofences,
+}) {
   const classes = useStyles();
+
+  console.log({
+    rows,
+    devices,
+    recorrido,
+    geofences,
+  });
+
+  const deviceFilter = (id) => {
+    const Filter = devices.find((device) => device.id === id);
+    if (!Filter) {
+      return {
+        name: "No se encontró",
+      };
+    }
+    return Filter;
+  };
+
+  const getRecorrido = (id) => {
+    const Filter = recorrido.find((r) => r.id_recorrido === id);
+    if (!Filter) {
+      return {
+        name: "No se encontró",
+      };
+    }
+    return {
+      name: Filter.nombre,
+    };
+  };
+
+  const recorridoFilter = (id) => {
+    const Filter = recorrido
+      .filter((rec) => rec.id_recorrido === id)
+      .sort((a, b) => a.posicion - b.posicion);
+    if (!Filter) {
+      return {
+        name: "No se encontró",
+      };
+    }
+    const displayNombre = geofences.find(
+      (device) => device.id === Filter[Filter.length - 1].id_geocerca_2
+    );
+    if (!displayNombre) {
+      return {
+        name: "No se encontró",
+      };
+    }
+    return displayNombre;
+  };
 
   return (
     <div className={classes.tableContent}>
@@ -65,28 +104,33 @@ export default function DispositivosTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.name}>
-                <TableCell component="th" scope="row">
-                  {row.name}
-                </TableCell>
-                <TableCell align="right">{row.calories}</TableCell>
-                <TableCell align="right">{row.calories}</TableCell>
-                <TableCell align="right">4:00 pm</TableCell>
-                <TableCell align="right">
-                  <Tooltip title="Editar" placement="top" arrow>
-                    <IconButton>
-                      <EditIcon color="primary" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Eliminar" placement="top" arrow>
-                    <IconButton>
-                      <DeleteIcon color="secondary" />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
+            {rows &&
+              rows.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell component="th" scope="row">
+                    {`${deviceFilter(row.id_device).name}`}
+                  </TableCell>
+                  <TableCell align="right">
+                    {`${getRecorrido(row.id_recorrido).name}`}
+                  </TableCell>
+                  <TableCell align="right">
+                    {`${recorridoFilter(row.id_recorrido).name}`}
+                  </TableCell>
+                  <TableCell align="right">{row.hora}</TableCell>
+                  <TableCell align="right">
+                    <Tooltip title="Editar" placement="top" arrow>
+                      <IconButton>
+                        <EditIcon color="primary" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Eliminar" placement="top" arrow>
+                      <IconButton>
+                        <DeleteIcon color="secondary" />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>

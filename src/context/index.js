@@ -10,10 +10,6 @@ export function UserContext({ children }) {
   );
 
   useEffect(() => {
-    console.log({ user });
-    console.log({ fecha });
-    console.log(moment().subtract(1, "week").startOf("week").toISOString());
-    console.log(moment().subtract(1, "week").endOf("week").toISOString());
     if (
       user &&
       fecha &&

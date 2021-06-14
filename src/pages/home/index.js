@@ -46,7 +46,7 @@ export default function Home() {
   };
 
   return (
-    <div>
+    <div style={{ marginBottom: "20px" }}>
       <h3>Esta es la pagina de inicio</h3>
       <Card className={classes.root}>
         <CardContent>
