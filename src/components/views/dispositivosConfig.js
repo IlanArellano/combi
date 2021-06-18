@@ -13,6 +13,8 @@ import Paper from "@material-ui/core/Paper";
 import EditIcon from "@material-ui/icons/Create";
 import DeleteIcon from "@material-ui/icons/Delete";
 
+import { deleteDevices } from "../../services/deviceAPIservice";
+
 const useStyles = makeStyles((theme) => ({
   tableContent: {
     margin: "10px 5%",
@@ -30,6 +32,7 @@ export default function DispositivosTable({
   devices,
   recorrido,
   geofences,
+  handleEditar,
 }) {
   const classes = useStyles();
 
@@ -82,6 +85,12 @@ export default function DispositivosTable({
     return displayNombre;
   };
 
+  const handleEliminar = async (id) => {
+    const Delete = await deleteDevices({ id });
+    console.log(rows.find((row) => row.id === id));
+    console.log(Delete);
+  };
+
   return (
     <div className={classes.tableContent}>
       <TableContainer component={Paper} className={classes.table}>
@@ -105,6 +114,7 @@ export default function DispositivosTable({
           </TableHead>
           <TableBody>
             {rows &&
+              rows.length > 0 &&
               rows.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell component="th" scope="row">
@@ -119,12 +129,12 @@ export default function DispositivosTable({
                   <TableCell align="right">{row.hora}</TableCell>
                   <TableCell align="right">
                     <Tooltip title="Editar" placement="top" arrow>
-                      <IconButton>
+                      <IconButton onClick={() => handleEditar(row.id)}>
                         <EditIcon color="primary" />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Eliminar" placement="top" arrow>
-                      <IconButton>
+                      <IconButton onClick={() => handleEliminar(row.id)}>
                         <DeleteIcon color="secondary" />
                       </IconButton>
                     </Tooltip>

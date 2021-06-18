@@ -12,7 +12,13 @@ import getDevicesTraccar from "../../services/deviceService";
 
 import { getRecorridos } from "../../services/recorridoService";
 import { getGeofences } from "../../services/listOfGeofences";
-import { getDevices, addDevices } from "../../services/deviceAPIservice";
+import {
+  getDevices,
+  addDevices,
+  updateDevices,
+  getDevicesById,
+} from "../../services/deviceAPIservice";
+import { getRutaById, addOrUpdateRuta } from "../../services/rutasService";
 
 import "./styles/index.css";
 
@@ -36,9 +42,17 @@ export default function Dispositivos() {
   const [destino, setDestino] = useState("");
   const [devices, setDevices] = useState([]);
   const [devicesTabla, setDevicesTabla] = useState([]);
+  const [editar, setEditar] = useState(false);
+  const [temporalId, setTemporalId] = useState("");
   const classes = useStyles();
 
   const handleChangeRecorrido = (e) => {
+    setCampos((campo) => {
+      return {
+        ...campo,
+        id_recorrido: e.target.value,
+      };
+    });
     const Item = recorrido
       .filter((rec) => rec.nombre === e.target.value)
       .sort((a, b) => a.posicion - b.posicion);
@@ -49,23 +63,66 @@ export default function Dispositivos() {
       throw new Error("No se encontro");
     }
     setDestino(displayNombre.name);
-    setCampos((campo) => {
-      return {
-        ...campo,
-        id_recorrido: e.target.value,
-      };
+  };
+
+  const camposRuta = async (id) => {
+    const lugarFilter = recorrido
+      .filter((rec) => rec.nombre === campos.id_recorrido)
+      .sort((a, b) => a.posicion - b.posicion);
+    const addRutas = await addOrUpdateRuta({
+      id,
+      idlugaro: lugarFilter[0].id_geocerca_1,
+      idlugard: lugarFilter[lugarFilter.length - 1].id_geocerca_2,
+      fechaI: campos.hora.format("LTS"),
+      id_recorrido: recorrido.filter((r) => r.nombre === campos.id_recorrido)[0]
+        .id_recorrido,
+      iddevice: campos.id_device,
     });
+    return addRutas;
   };
 
   const handleAceptar = async () => {
-    console.log({ ...campos, hora: campos.hora.format("LTS").split(" ")[0] });
-    const addD = await addDevices({
+    const newCampos = {
       ...campos,
-      hora: campos.hora.format("LTS").split(" ")[0],
+      id: campos.id_device,
+      hora: campos.hora.format("LTS"),
       id_recorrido: recorrido.filter((r) => r.nombre === campos.id_recorrido)[0]
         .id_recorrido,
-    });
+    };
+    setDevicesTabla((prevD) => prevD.concat(newCampos));
+    delete newCampos.id;
+    const addD = await addDevices(newCampos);
     console.log(addD);
+    console.log(await camposRuta(null));
+  };
+
+  const handleEditar = async (id) => {
+    setEditar(true);
+    const GetDevice = await getDevicesById({ id });
+    console.log(GetDevice);
+    setCampos({
+      id_device: GetDevice[0].id_device,
+      id_recorrido: GetDevice[0].id_recorrido,
+      hora: moment(GetDevice[0].hora, "hh:mm:ss"),
+    });
+    setTemporalId(id);
+  };
+
+  const handleEditarSubmit = async () => {
+    const camposUpdate = {
+      ...campos,
+      hora: campos.hora.format("LTS"),
+      id: temporalId,
+      id_recorrido: recorrido.filter((r) => r.nombre === campos.id_recorrido)[0]
+        .id_recorrido,
+    };
+    const UpdateDevie = await updateDevices(camposUpdate);
+    console.log(UpdateDevie);
+    const checkRuta = await getRutaById({ id: campos.id_device });
+    if (checkRuta.length > 0) {
+      console.log(await camposRuta(checkRuta[0].id_ruta));
+    }
+    setEditar(false);
   };
 
   useEffect(() => {
@@ -101,7 +158,6 @@ export default function Dispositivos() {
           <InputLabel htmlFor="dispositivo">Dispositivo</InputLabel>
           <Select
             native
-            defaultValue=""
             inputProps={{
               name: "dispositivo",
               id: "dispositivo",
@@ -133,7 +189,6 @@ export default function Dispositivos() {
           <InputLabel htmlFor="recorrido">Recorrido</InputLabel>
           <Select
             native
-            defaultValue=""
             inputProps={{
               name: "recorrido",
               id: "recorrido",
@@ -174,10 +229,24 @@ export default function Dispositivos() {
             })
           }
         />
-        <div>
-          <Button variant="outlined" onClick={handleAceptar}>
-            Aceptar
-          </Button>
+        <div className="DeviceButtons">
+          {!editar ? (
+            <Button
+              variant="outlined"
+              onClick={handleAceptar}
+              disabled={!Boolean(campos.id_device && campos.id_recorrido)}
+            >
+              Aceptar
+            </Button>
+          ) : (
+            <Button
+              variant="outlined"
+              onClick={handleEditarSubmit}
+              disabled={!Boolean(campos.id_device && campos.id_recorrido)}
+            >
+              Editar
+            </Button>
+          )}
           <Button variant="outlined">Limpiar</Button>
         </div>
       </div>
@@ -190,6 +259,7 @@ export default function Dispositivos() {
             devices={devices}
             recorrido={recorrido}
             geofences={geofences}
+            handleEditar={handleEditar}
           />
         )}
       </div>
