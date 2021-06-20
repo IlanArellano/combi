@@ -2,16 +2,14 @@ import Moment from "moment";
 import { extendMoment } from "moment-range";
 
 const moment = extendMoment(Moment);
-//moment.locale("es");
+moment.locale("es");
 
-/* prettier-ignore */
 export const getTableContent = ({
   ruta,
   recorrido,
   devices,
   geofences,
   Event,
-  EventSalida,
   getFechaInterval,
 }) => {
   console.log({
@@ -20,160 +18,130 @@ export const getTableContent = ({
     devices,
     geofences,
     Event,
-    EventSalida,
     getFechaInterval,
   });
-  try {
-    const getTableInfo = ruta.map((r) => {
-      const getDevice = devices.find((devicess) => devicess.id === r.iddevice);
-      const getLugarO = geofences.find((geofence) => geofence.id === r.idlugaro);
-      const getLugarD = geofences.find((geofence) => geofence.id === r.idlugard);
-      const getRutas = recorrido
-        .filter((rec) => rec.id_recorrido === r.id_recorrido)
-        .sort((a, b) => a.posicion - b.posicion);
-      let generateEvent = [];
-      let generateEventEntrada = [];
-      if (EventSalida && EventSalida.length > 0) {
-        generateEvent = recorrido.map((route) => {
-          const listOfGeofences = EventSalida.filter(
-            (geo) =>
-              geo.geofenceId === route.id_geocerca_1 ||
-              geo.geofenceId === route.id_geocerca_2
-          );
-          return listOfGeofences;
-        });
-      }
-      if (Event && Event.length > 0) {
-        generateEventEntrada = recorrido.map((route) => {
-          const listOfGeofencesEntrada = Event.filter(
-            (geo) =>
-              geo.geofenceId === route.id_geocerca_1 ||
-              geo.geofenceId === route.id_geocerca_2
-          );
-          return listOfGeofencesEntrada;
-        });
-      }
-
-      const fechaFilter = (fechaServer) =>
-        getFechaInterval.from.toDate().getTime() +
-          (Parse.horas + Parse.minutes + Parse.seconds) <=
-          new Date(fechaServer).getTime() &&
-        new Date(fechaServer).getTime() <=
-          getFechaInterval.to.toDate().getTime()
-          ? true
-          : false;
-
-      const fechaa = r.fechaI.split(" ");
-      const cambio = fechaa[0].split(":");
-      const parseHour =
-        fechaa[1].toLowerCase() === "pm"
-          ? cambio.splice(0, 1, cambio[0] + 12)
-          : cambio;
-      const Parse = {
-        horas: parseInt(parseHour[0]) * 3600,
-        minutes: parseInt(parseHour[1]) * 60,
-        seconds: parseInt(parseHour[2]),
-      };
-      return {
-        dispositivo: getDevice ? getDevice.name : 'Desconocido',
-        lugarO: getLugarO ? getLugarO.name : 'Desconocido',
-        lugarD: getLugarD ? getLugarD.name : 'Desconocido',
-        fecha: moment().format(`YYYY-MMMM-DD, [${r.fechaI}]`).toLowerCase(),
-        recorrido: getRutas,
-        eventoEntrada: generateEventEntrada
-          .map((event) => {
-            return event
-              .filter((e) => fechaFilter(e.serverTime) === true)
-              .sort(
-                (a, b) =>
-                  new Date(a.serverTime).getTime() >
-                  new Date(b.serverTime).getTime()
-              );
-          })
-          .map((ev) => {
-            return ev.map((e, i) => {
-              return {
-                punto1: generateEventEntrada.filter(
-                  (re) =>
-                    recorrido[i].punto1 === e.name &&
-                    re.geofenceId === e.geofenceId
-                ),
-                punto2: generateEventEntrada.filter(
-                  (re) =>
-                    recorrido[i].punto2 === e.name &&
-                    re.geofenceId === e.geofenceId
-                ),
-              };
-            });
-          }),
-        eventoSalida: generateEvent
-          .map((event) => {
-            return event
-              .filter((e) => fechaFilter(e.serverTime) === true)
-              .sort(
-                (a, b) =>
-                  new Date(a.serverTime).getTime() >
-                  new Date(b.serverTime).getTime()
-              );
-          })
-          .map((ev) => {
-            return ev.map((e, i) => {
-              return {
-                punto1: generateEvent.filter(
-                  (re) =>
-                    recorrido[i].punto1 === e.name &&
-                    re.geofenceId === e.geofenceId
-                ),
-                punto2: generateEvent.filter(
-                  (re) =>
-                    recorrido[i].punto1 === e.name &&
-                    re.geofenceId === e.geofenceId
-                ),
-              };
-            });
-          }),
-      };
-    });
-
-    return getTableInfo;
-    /* return getTableInfo.map((mod) => {
-      return {
-        ...mod,
-        eventoEntrada: mod.eventoEntrada.map((ev) => {
-          return ev.map((e, i) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const getTableInfo = ruta.map((r) => {
+        const getDevice = devices.find(
+          (devicess) => devicess.id === r.iddevice
+        );
+        const getLugarO = geofences.find(
+          (geofence) => geofence.id === r.idlugaro
+        );
+        const getLugarD = geofences.find(
+          (geofence) => geofence.id === r.idlugard
+        );
+        const getRutas = recorrido
+          .filter((rec) => rec.id_recorrido === r.id_recorrido)
+          .sort((a, b) => a.posicion - b.posicion);
+        return {
+          dispositivo: getDevice ? getDevice.name : "Desconocido",
+          lugarO: getLugarO ? getLugarO.name : "Desconocido",
+          lugarD: getLugarD ? getLugarD.name : "Desconocido",
+          recorrido: getRutas.map((rrec) => {
+            const nombreGeocerca1 = geofences.find(
+              (geo) => geo.id === rrec.id_geocerca_1
+            );
+            const nombreGeocerca2 = geofences.find(
+              (geo) => geo.id === rrec.id_geocerca_2
+            );
             return {
-              punto1: generateEventEntrada.filter(
-                (re) =>
-                  recorrido[i].punto1 === e.name &&
-                  re.geofenceId === e.geofenceId
-              ),
-              punto2: generateEventEntrada.filter(
-                (re) =>
-                  recorrido[i].punto2 === e.name &&
-                  re.geofenceId === e.geofenceId
-              ),
+              ...rrec,
+              nombreGeocerca1: nombreGeocerca1
+                ? nombreGeocerca1.name
+                : "Desconocido",
+              nombreGeocerca2: nombreGeocerca2
+                ? nombreGeocerca2.name
+                : "Desconocido",
             };
+          }),
+        };
+      });
+
+      let finalTable = [];
+      let posicion = [];
+      let exclude = [];
+      let i = 0;
+      do {
+        for (let j = i; j < Event.length; j++) {
+          let element = Event[i];
+          if (
+            new Date(
+              moment(element.serverTime).startOf("day").toISOString()
+            ).getTime() <= new Date(Event[j].serverTime).getTime() &&
+            new Date(Event[j].serverTime).getTime() <=
+              new Date(
+                moment(element.serverTime).endOf("day").toISOString()
+              ).getTime()
+          ) {
+            posicion.push(Event[j]);
+          } else {
+            exclude.push(j);
+          }
+        }
+        exclude = exclude.sort((a, b) => a - b);
+        i = exclude[0];
+        finalTable.push(posicion);
+        //Reset
+        posicion = [];
+        exclude = [];
+      } while (i < Event.length);
+      let Result = [];
+
+      for (let i = 0; i < getTableInfo.length; i++) {
+        for (let j = 0; j < finalTable.length; j++) {
+          const findDev = devices.find(
+            (de) => de.name === getTableInfo[i].dispositivo
+          );
+          Result.push({
+            ...getTableInfo[i],
+            fecha: moment(finalTable[j][i].serverTime).format("MMMM Do YYYY"),
+            hora: findDev
+              ? getTableInfo[i].recorrido.map((ree) => {
+                  const geocerca1 = finalTable[j].filter(
+                    (item) =>
+                      item.deviceId === findDev.id &&
+                      item.geofenceId === ree.id_geocerca_1
+                  );
+                  const geocerca2 = finalTable[j].filter(
+                    (item) =>
+                      item.deviceId === findDev.id &&
+                      item.geofenceId === ree.id_geocerca_2
+                  );
+
+                  const diferencia =
+                    geocerca1 &&
+                    geocerca2 &&
+                    geocerca1.length > 0 &&
+                    geocerca2.length > 0
+                      ? (new Date(geocerca2[0].serverTime).getTime() -
+                          new Date(geocerca1[0].serverTime).getTime()) /
+                        60000
+                      : "-";
+                  return {
+                    geocerca1:
+                      geocerca1 && geocerca1.length > 0
+                        ? moment(geocerca1[0].serverTime).format("hh:mm a")
+                        : "N/A",
+                    geocerca2:
+                      geocerca2 && geocerca2.length > 0
+                        ? moment(geocerca2[0].serverTime).format("hh:mm a")
+                        : "N/A",
+                    diferencia:
+                      typeof diferencia === "number"
+                        ? Math.floor(diferencia) - ree.minutos
+                        : diferencia,
+                  };
+                })
+              : "Error",
           });
-        }),
-        eventoSalida: mod.eventoSalida.map((ev) => {
-          return ev.map((e, i) => {
-            return {
-              punto1: generateEvent.filter(
-                (re) =>
-                  recorrido[i].punto1 === e.name &&
-                  re.geofenceId === e.geofenceId
-              ),
-              punto2: generateEvent.filter(
-                (re) =>
-                  recorrido[i].punto1 === e.name &&
-                  re.geofenceId === e.geofenceId
-              ),
-            };
-          });
-        }),
-      };
-    });*/
-  } catch (error) {
-    return { error };
-  }
+        }
+      }
+
+      resolve(Result);
+    } catch (error) {
+      reject({ error });
+    }
+  });
 };

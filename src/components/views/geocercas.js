@@ -20,63 +20,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function DispositivosTable() {
+export default function DispositivosTable({ tableInfo, error }) {
   const classes = useStyles();
-
-  /*console.log({
-    rows,
-    devices,
-    recorrido,
-    geofences,
-  });
-
-  const deviceFilter = (id) => {
-    const Filter = devices.find((device) => device.id === id);
-    if (!Filter) {
-      return {
-        name: "No se encontró",
-      };
-    }
-    return Filter;
-  };
-
-  const getRecorrido = (id) => {
-    const Filter = recorrido.find((r) => r.id_recorrido === id);
-    if (!Filter) {
-      return {
-        name: "No se encontró",
-      };
-    }
-    return {
-      name: Filter.nombre,
-    };
-  };
-
-  const recorridoFilter = (id) => {
-    const Filter = recorrido
-      .filter((rec) => rec.id_recorrido === id)
-      .sort((a, b) => a.posicion - b.posicion);
-    if (!Filter) {
-      return {
-        name: "No se encontró",
-      };
-    }
-    const displayNombre = geofences.find(
-      (device) => device.id === Filter[Filter.length - 1].id_geocerca_2
-    );
-    if (!displayNombre) {
-      return {
-        name: "No se encontró",
-      };
-    }
-    return displayNombre;
-  };
-
-  const handleEliminar = async (id) => {
-    const Delete = await deleteDevices({ id });
-    console.log(rows.find((row) => row.id === id));
-    console.log(Delete);
-  };*/
 
   return (
     <div className={classes.tableContent}>
@@ -97,45 +42,81 @@ export default function DispositivosTable() {
               <TableCell align="right" className={classes.tableTitle}>
                 Recorrido
               </TableCell>
-              <TableCell align="right" className={classes.tableTitle}>
-                Hora
-              </TableCell>
-              <TableCell align="right" className={classes.tableTitle}>
-                Diferencia
+              <TableCell align="center" className={classes.tableTitle}>
+                Hora y Diferencia
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
-              <TableCell align="right">01</TableCell>
-              <TableCell align="right">Sat</TableCell>
-              <TableCell align="right">Nosat</TableCell>
-              <TableCell align="right">2021-06-12T12:59:35.000</TableCell>
-              <TableCell align="right">
-                <li>Ruta 1</li>
-                <li>Ruta 2</li>
-                <li>Ruta 3</li>
-                <li>Ruta 4</li>
-                <li>Ruta 5</li>
-                <li>Ruta 6</li>
-              </TableCell>
-              <TableCell align="right">
-                <li>2:30</li>
-                <li>2:30</li>
-                <li>2:30</li>
-                <li>2:30</li>
-                <li>2:30</li>
-                <li>2:30</li>
-              </TableCell>
-              <TableCell align="right">
-                <li>1</li>
-                <li>1</li>
-                <li>1</li>
-                <li>1</li>
-                <li>1</li>
-                <li>1</li>
-              </TableCell>
-            </TableRow>
+            {error ? (
+              <div>{error}</div>
+            ) : (
+              tableInfo &&
+              tableInfo.length > 0 &&
+              tableInfo.map((item, index) => {
+                return (
+                  <TableRow key={index}>
+                    <TableCell align="right">{item.dispositivo}</TableCell>
+                    <TableCell align="right">{item.lugarO}</TableCell>
+                    <TableCell align="right">{item.lugarD}</TableCell>
+                    <TableCell align="right">{item.fecha}</TableCell>
+                    <TableCell align="right">
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "flex-start",
+                        }}
+                      >
+                        {item.recorrido.map((rec) => {
+                          return (
+                            <div key={rec.id}>
+                              <li>{rec.nombreGeocerca1}</li>
+                              <li>{rec.nombreGeocerca2}</li>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </TableCell>
+                    <TableCell align="left">
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <div>
+                          {item.hora.map((h, i) => {
+                            return (
+                              <div key={i}>
+                                <li>{h.geocerca1}</li>
+                                <li>{h.geocerca2}</li>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div>
+                          {item.hora.map((hor, i) => {
+                            return (
+                              <div key={i}>
+                                <br />
+                                <li
+                                  style={{
+                                    color: hor.diferencia <= 0 ? "blue" : "red",
+                                  }}
+                                >
+                                  {hor.diferencia}
+                                </li>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
           </TableBody>
         </Table>
       </TableContainer>

@@ -56,3 +56,14 @@ export const addOrUpdateRuta = async ({
     return { error };
   }
 };
+
+export const deleteRuta = async ({ id }) => {
+  try {
+    const DeleteRuta = await axios.delete(
+      `${process.env.REACT_APP_COMBI_API}/api/rutas/${getUser}/${id}`
+    );
+    console.log(DeleteRuta);
+  } catch (error) {
+    return { error };
+  }
+};

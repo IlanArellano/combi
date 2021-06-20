@@ -14,6 +14,7 @@ import EditIcon from "@material-ui/icons/Create";
 import DeleteIcon from "@material-ui/icons/Delete";
 
 import { deleteDevices } from "../../services/deviceAPIservice";
+import { deleteRuta } from "../../services/rutasService";
 
 const useStyles = makeStyles((theme) => ({
   tableContent: {
@@ -85,10 +86,11 @@ export default function DispositivosTable({
     return displayNombre;
   };
 
-  const handleEliminar = async (id) => {
+  const handleEliminar = async (id, device) => {
     const Delete = await deleteDevices({ id });
-    console.log(rows.find((row) => row.id === id));
+    const deleteRoute = await deleteRuta({ id: device });
     console.log(Delete);
+    console.log(deleteRoute);
   };
 
   return (
@@ -134,7 +136,9 @@ export default function DispositivosTable({
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Eliminar" placement="top" arrow>
-                      <IconButton onClick={() => handleEliminar(row.id)}>
+                      <IconButton
+                        onClick={() => handleEliminar(row.id, row.id_device)}
+                      >
                         <DeleteIcon color="secondary" />
                       </IconButton>
                     </Tooltip>

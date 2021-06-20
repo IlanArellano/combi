@@ -68,6 +68,7 @@ export default function Inputs({ geofences, recorrido = {} }) {
     } else {
       setItem(false);
     }
+    // eslint-disable-next-line
   }, [setItem]);
 
   return (

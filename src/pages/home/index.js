@@ -38,6 +38,7 @@ export default function Home() {
   const [recorrido, setRecorrido] = useState([]);
   const [geofences, setGeofences] = useState([]);
   const [infoTable, setInfoTable] = useState([]);
+  const [error, setError] = useState(null);
   const [devices, setDevices] = useState([]);
   const [devicesDisplay, setDevicesDisplay] = useState([]);
   const [deviceSelect, setDeviceSelect] = useState("");
@@ -60,24 +61,30 @@ export default function Home() {
       to: getFechaInterval.to.toISOString(),
     });
 
-    const getGeofenceEventSalida = await geofenceEvent({
-      deviceId: deviceSelect,
-      from: getFechaInterval.from.toISOString(),
-      to: getFechaInterval.to.toISOString(),
-      type: "geofenceExit",
-    });
-
-    console.log(
-      getTableContent({
-        ruta,
-        recorrido,
-        devices,
-        geofences,
-        Event: getGeofenceEvent,
-        EventSalida: getGeofenceEventSalida,
-        getFechaInterval,
-      })
-    );
+    try {
+      console.log(
+        await getTableContent({
+          ruta,
+          recorrido,
+          devices,
+          geofences,
+          Event: getGeofenceEvent,
+          getFechaInterval,
+        })
+      );
+      setInfoTable(
+        await getTableContent({
+          ruta,
+          recorrido,
+          devices,
+          geofences,
+          Event: getGeofenceEvent,
+          getFechaInterval,
+        })
+      );
+    } catch (error) {
+      setError(`Ha ocurrido un error: ${error}`);
+    }
   };
 
   useEffect(() => {
@@ -95,9 +102,12 @@ export default function Home() {
     (async function () {
       const Devices = await getDevices();
       const DisplayDevices = await getDevicesSelect();
-      const devicesFilter = DisplayDevices.map((D) => {
-        return Devices.find((device) => device.id === D.id_device);
-      });
+      const devicesFilter =
+        DisplayDevices && DisplayDevices.length > 0
+          ? DisplayDevices.map((D) => {
+              return Devices.find((device) => device.id === D.id_device);
+            })
+          : [];
       setDevicesDisplay(devicesFilter);
       setDevices(Devices);
     })();
@@ -179,7 +189,7 @@ export default function Home() {
         </CardActions>
       </Card>
       <div className="Tabla">
-        <Geocerca />
+        <Geocerca tableInfo={infoTable} error={error} />
       </div>
     </div>
   );
