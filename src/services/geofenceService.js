@@ -10,9 +10,7 @@ export default async function geofenceEvent({
   try {
     const query = new URLSearchParams({ deviceId, from, to, type });
     const res = await fetch(
-      `http://${
-        process.env.REACT_APP_API_URL
-      }/api/reports/events?${query.toString()}`,
+      `${process.env.REACT_APP_API_URL}/api/reports/events?${query.toString()}`,
       {
         headers: {
           Authorization: `Basic ${getUser}`,

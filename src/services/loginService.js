@@ -7,15 +7,12 @@ export const LoginService = async (keys) => {
     formBody.push(`${encodedKey}=${encodedValue}`);
   }
   formBody = formBody.join("&");
-  const res = await fetch(
-    `http://${process.env.REACT_APP_API_URL}/api/session`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-      },
-      body: formBody,
-    }
-  );
+  const res = await fetch(`${process.env.REACT_APP_API_URL}/api/session`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+    },
+    body: formBody,
+  });
   return res;
 };
