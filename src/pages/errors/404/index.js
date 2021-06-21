@@ -32,7 +32,7 @@ function Error404Page() {
             color="textSecondary"
             className={classes.textSecondary}
           >
-            La página que deseas ingresar no ha sido encontrada.
+            La página que deseas ingresar no ha sido encontrada!.
           </Typography>
         </div>
 
