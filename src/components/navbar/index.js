@@ -14,7 +14,6 @@ import useUser from "../../hooks/useUser";
 
 import HomeIcon from "@material-ui/icons/Home";
 import SettingsIcon from "@material-ui/icons/Settings";
-import CarIcon from "@material-ui/icons/DirectionsCar";
 import LogoutIcon from "@material-ui/icons/ArrowForward";
 
 import "./styles/index.css";
@@ -85,14 +84,6 @@ export default function Navbar() {
                 <SettingsIcon />
               </ListItemIcon>
               <ListItemText primary="Configuración de Recorridos" />
-            </ListItem>
-          </List>
-          <List>
-            <ListItem component={Link} to="/configuracion/dispositivos">
-              <ListItemIcon>
-                <CarIcon />
-              </ListItemIcon>
-              <ListItemText primary="Configuración de los vehiculos" />
             </ListItem>
           </List>
         </div>

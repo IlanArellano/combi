@@ -36,6 +36,7 @@ export const getTableContent = ({
           .filter((rec) => rec.id_recorrido === r.id_recorrido)
           .sort((a, b) => a.posicion - b.posicion);
         return {
+          id_device: getDevice ? getDevice.id : "Desconocido",
           dispositivo: getDevice ? getDevice.name : "Desconocido",
           lugarO: getLugarO ? getLugarO.name : "Desconocido",
           lugarD: getLugarD ? getLugarD.name : "Desconocido",
@@ -94,8 +95,43 @@ export const getTableContent = ({
           const findDev = devices.find(
             (de) => de.name === getTableInfo[i].dispositivo
           );
+          const findInicio = ruta.find((rta) => rta.iddevice === devices[0].id);
+          const dateInicio = findInicio ? findInicio.fechaI : "N/A";
+          const Milli = dateInicio.split(":");
+          const lastInicio = Milli[2].split(" ");
+          const evaTime = () => {
+            let result;
+            if (lastInicio[1].toLowerCase() === "am") {
+              if (parseInt(Milli[0]) === 12) {
+                result = parseInt(`0${parseInt(Milli[0]) - 12}`);
+              }
+              if (parseInt(Milli[0]) < 10) {
+                result = parseInt(`0${Milli[0]}`);
+              }
+            } else {
+              if (parseInt(Milli[0]) === 12) {
+                result = parseInt(Milli[0]);
+              } else {
+                result = parseInt(Milli[0]) + 12;
+              }
+            }
+            return result;
+          };
+
+          const convertTime = `${evaTime()}:${Milli[1]}:${lastInicio[0]}`;
+          const TimeinMilli = moment(finalTable[j][i].serverTime)
+            .startOf("day")
+            .format(`MMMM D, YYYY [${convertTime}]`);
           Result.push({
             ...getTableInfo[i],
+            inicio: dateInicio,
+            diffInicio: TimeinMilli
+              ? Math.floor(
+                  (new Date(TimeinMilli).getTime() -
+                    new Date(finalTable[j][i].serverTime).getTime()) /
+                    60000
+                )
+              : "N/A",
             fecha: moment(finalTable[j][i].serverTime).format("MMMM Do YYYY"),
             hora: findDev
               ? getTableInfo[i].recorrido.map((ree) => {
