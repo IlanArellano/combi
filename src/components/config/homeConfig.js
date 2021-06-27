@@ -83,18 +83,17 @@ export default function Home({ setInfoTable, setError, setLoad }) {
     setLoad(true);
     //Creacion de las rutas de acuerdo al dispositivo seleccionado
     let Rutas = await getRutas();
+    const checkRuta = await getRutaById({ id: campos.id_device });
     const searchRuta = Boolean(
       Rutas.find((r) => r.iddevice === parseInt(campos.id_device))
     );
     if (!searchRuta) {
       console.log(await camposRuta(null));
     } else {
-      const checkRuta = await getRutaById({ id: campos.id_device });
       if (checkRuta.length > 0) {
         console.log(await camposRuta(checkRuta[0].id_ruta));
       }
     }
-    Rutas = await getRutas();
 
     const getFechaInterval = selectDate({ fecha });
 
@@ -106,7 +105,7 @@ export default function Home({ setInfoTable, setError, setLoad }) {
 
     try {
       const tableContent = await getTableContent({
-        ruta: Rutas,
+        ruta: checkRuta,
         recorrido,
         devices: [
           devices.find((device) => device.id === parseInt(campos.id_device)),
@@ -115,9 +114,7 @@ export default function Home({ setInfoTable, setError, setLoad }) {
         Event: getGeofenceEvent,
         getFechaInterval,
       });
-      console.log(
-        tableContent.filter((T) => T.id_device === parseInt(campos.id_device))
-      );
+      console.log(tableContent);
       setInfoTable(
         Array.isArray(tableContent)
           ? tableContent.filter(
@@ -136,7 +133,7 @@ export default function Home({ setInfoTable, setError, setLoad }) {
       if (getGeofenceEvent.length === 0) {
         setError(`No se ha recibido ningun evento`);
       } else {
-        setError(`Ha ocurrido un error: ${JSON.stringify(error)}`);
+        setError(JSON.stringify(error));
       }
     }
     setProcessing(false);
